@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/fonts/GlacialIndifference-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/fonts/GlacialIndifference-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream:   #FAFAF7;
+  --warm:    #F5F2ED;
+  --sand:    #E8E3DB;
+  --ink:     #1C1C1A;
+  --ink2:    #4A4845;
+  --ink3:    #8A8785;
+  --accent:  #D4622A;
+  --accent2: #E8875A;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Glacial Indifference', 'Trebuchet MS', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* Utility classes for fonts (used alongside Tailwind) */
+.font-fredoka  { font-family: 'Fredoka', sans-serif; }
+.font-glacial  { font-family: 'Glacial Indifference', 'Trebuchet MS', sans-serif; }
+
+/* Timer pulse animation */
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.timer-running {
+  animation: timerPulse 1s ease-in-out infinite;
+  color: var(--accent) !important;
+}
