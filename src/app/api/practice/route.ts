@@ -12,6 +12,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid difficulty' }, { status: 400 })
   }
 
+  const poolMode = req.nextUrl.searchParams.get('pool') === 'true'
+  const limitStr = req.nextUrl.searchParams.get('limit')
+  const limit = limitStr ? parseInt(limitStr, 10) : 15
+
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('questions')
@@ -21,6 +25,12 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data || data.length === 0) {
     return NextResponse.json({ error: 'No questions found' }, { status: 404 })
+  }
+
+  if (poolMode) {
+    const shuffled = [...data].sort(() => 0.5 - Math.random())
+    const selectedPool = shuffled.slice(0, Math.min(limit, data.length))
+    return NextResponse.json({ questions: selectedPool })
   }
 
   const question = data[Math.floor(Math.random() * data.length)]

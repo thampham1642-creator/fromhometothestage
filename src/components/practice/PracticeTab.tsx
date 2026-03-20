@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { type Difficulty } from '@/types'
-import { QuestionCard }  from './QuestionCard'
+import { QuestionCarousel }  from './QuestionCarousel'
 import { TimerCard }     from './TimerCard'
 import { FocusTimer }    from './FocusTimer'
 import { useTimer }      from '@/hooks/useTimer'
@@ -25,6 +25,24 @@ export function PracticeTab({ onDone }: Props) {
   const [loading, setLoading]       = useState(false)
   const [markDone, setMarkDone]     = useState(false)
 
+  const [questionPool, setQuestionPool] = useState<{ id: string; text: string; difficulty: Difficulty }[]>([])
+
+  // Fetch pool when difficulty changes
+  useEffect(() => {
+    let mounted = true
+    setLoading(true)
+    fetch(`/api/practice?difficulty=${difficulty}&pool=true&limit=20`)
+      .then(res => res.json())
+      .then(data => {
+        if (mounted && data.questions) {
+           setQuestionPool(data.questions)
+        }
+      })
+      .catch(console.error)
+      .finally(() => { if (mounted) setLoading(false) })
+    return () => { mounted = false }
+  }, [difficulty])
+
   // Focus mode state: null = not active, 'prep' | 'speak' = active phase
   const [focusPhase, setFocusPhase] = useState<'prep' | 'speak' | null>(null)
 
@@ -41,22 +59,12 @@ export function PracticeTab({ onDone }: Props) {
   const speakResetRef   = useRef(speakTimer.reset)
   speakResetRef.current = speakTimer.reset
 
-  const handleRandom = useCallback(async () => {
-    setLoading(true)
+  const handleLock = useCallback((q: any) => {
+    setQuestion(q)
     setMarkDone(false)
     setFocusPhase(null)
     prepResetRef.current()
     speakResetRef.current()
-    try {
-      const res = await fetch(`/api/practice?difficulty=${difficultyRef.current}`)
-      if (!res.ok) throw new Error('Failed to fetch')
-      const data = await res.json()
-      setQuestion(data.question ?? null)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
   }, [])
 
   const handleMarkDone = useCallback(async () => {
@@ -153,26 +161,11 @@ export function PracticeTab({ onDone }: Props) {
         ))}
       </div>
 
-      {/* Question */}
-      <QuestionCard question={question} loading={loading} />
-
-      {/* Random button */}
-      <button
-        onClick={handleRandom}
-        disabled={loading}
-        className="w-full py-3.5 rounded-xl font-fredoka text-lg font-semibold mb-5 transition-all"
-        style={{
-          background: loading ? 'var(--ink2)' : 'var(--ink)',
-          color: 'var(--cream)',
-          border: 'none',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          letterSpacing: '0.02em',
-        }}
-        onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = '#333330' }}
-        onMouseOut={(e)  => { e.currentTarget.style.background = loading ? 'var(--ink2)' : 'var(--ink)' }}
-      >
-        {loading ? 'Loading...' : 'Random Question'}
-      </button>
+      {/* 3D Carousel */}
+      <QuestionCarousel 
+        questions={questionPool} 
+        onLock={handleLock}
+      />
 
       {/* Timers */}
       <div className="grid grid-cols-2 gap-3 mb-5">

@@ -64,3 +64,10 @@ body {
   animation: timerPulse 1s ease-in-out infinite;
   color: var(--accent) !important;
 }
+
+/* Pop Animation */
+@keyframes lockPop {
+  0%   { scale: 0.96; }
+  55%  { scale: 1.07; }
+  100% { scale: 1;    }
+}

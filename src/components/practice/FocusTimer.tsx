@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { type useTimer } from '@/hooks/useTimer'
+import { playBell, playApplause } from '@/lib/audio'
 
 type TimerHook = ReturnType<typeof useTimer>
 
@@ -27,13 +28,16 @@ export function FocusTimer({ phase, label, timer, questionText, onExit, onPhaseC
   const total = initialSecondsRef.current
   const progressPct = total > 0 ? Math.max(0, Math.min(100, ((total - seconds) / total) * 100)) : 0
 
-  // When the timer hits done, fire onPhaseComplete once
+  // When the timer hits done, play the correct sound based on phase
   useEffect(() => {
     if (state === 'done') {
-      const t = setTimeout(onPhaseComplete, 800)
-      return () => clearTimeout(t)
+      if (phase === 'prep') {
+        playBell()
+      } else {
+        playApplause()
+      }
     }
-  }, [state, onPhaseComplete])
+  }, [state, phase])
 
   const phaseBg   = phase === 'prep' ? 'var(--ink)' : '#0e0e0c'
   const accentCol = 'var(--accent)'
@@ -148,20 +152,35 @@ export function FocusTimer({ phase, label, timer, questionText, onExit, onPhaseC
         </div>
       )}
 
-      {/* Phase switch hint (only on prep) */}
-      {phase === 'prep' && !isDone && (
-        <p
+      {/* Manual transition button when done */}
+      {isDone && (
+        <button
+          onClick={onPhaseComplete}
           style={{
-            position:     'absolute',
-            bottom:       '2.5rem',
-            color:        'rgba(255,255,255,0.2)',
-            fontSize:     '12px',
+            marginTop:    '2rem',
+            padding:      '12px 32px',
             fontFamily:   'Glacial Indifference, Trebuchet MS, sans-serif',
+            fontSize:     '14px',
             letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            color:        '#fff',
+            background:   'transparent',
+            border:       `1px solid rgba(255,255,255,0.4)`,
+            borderRadius: '8px',
+            cursor:       'pointer',
+            transition:   'all 0.2s',
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.8)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
           }}
         >
-          Speaking timer starts automatically
-        </p>
+          {phase === 'prep' ? 'Start Speaking Time' : 'Finish'}
+        </button>
       )}
     </div>
   )
