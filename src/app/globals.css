@@ -71,3 +71,39 @@ body {
   55%  { scale: 1.07; }
   100% { scale: 1;    }
 }
+
+/* Recording pulse animation */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.3); }
+  100% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+}
+
+.record-btn.recording {
+  animation: pulse-ring 1.2s ease-out infinite;
+}
+
+.record-btn:hover:not(:disabled) {
+  border-color: rgba(255,255,255,0.5) !important;
+  background: rgba(255,255,255,0.1) !important;
+}
+
+.record-btn.recording:hover:not(:disabled) {
+  border-color: #ef4444 !important;
+  background: rgba(220, 38, 38, 0.25) !important;
+}
+
+/* Feedback spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.feedback-spinner {
+  display:       inline-block;
+  width:         12px;
+  height:        12px;
+  border:        2px solid rgba(255,255,255,0.15);
+  border-top:    2px solid var(--accent);
+  border-radius: 50%;
+  animation:     spin 0.8s linear infinite;
+  vertical-align: middle;
+}
